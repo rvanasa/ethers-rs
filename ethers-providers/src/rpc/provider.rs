@@ -14,8 +14,8 @@ use crate::{
 //     Http as HttpProvider,JsonRpcClientWrapper, QuorumProvider, RwClient,
 // };
 
-#[cfg(not(target_arch = "wasm32"))]
-use crate::{HttpRateLimitRetryPolicy, RetryClient};
+// #[cfg(not(target_arch = "wasm32"))]
+// use crate::{HttpRateLimitRetryPolicy, RetryClient};
 use std::net::Ipv4Addr;
 
 #[cfg(feature = "celo")]
