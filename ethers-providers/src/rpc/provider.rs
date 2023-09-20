@@ -7,9 +7,12 @@ use crate::{
     rpc::pubsub::{PubsubClient, SubscriptionStream},
     stream::{FilterWatcher, DEFAULT_LOCAL_POLL_INTERVAL, DEFAULT_POLL_INTERVAL},
     utils::maybe,
-    Http as HttpProvider, JsonRpcClient, JsonRpcClientWrapper, LogQuery, MiddlewareError,
-    MockProvider, NodeInfo, PeerInfo, PendingTransaction, QuorumProvider, RwClient,
+    JsonRpcClient, LogQuery, MiddlewareError,
+    MockProvider, NodeInfo, PeerInfo, PendingTransaction
 };
+// use crate::{
+//     Http as HttpProvider,JsonRpcClientWrapper, QuorumProvider, RwClient,
+// };
 
 #[cfg(not(target_arch = "wasm32"))]
 use crate::{HttpRateLimitRetryPolicy, RetryClient};
@@ -1270,51 +1273,51 @@ impl<P: JsonRpcClient> Provider<P> {
     }
 }
 
-#[cfg(all(feature = "ipc", any(unix, windows)))]
-impl Provider<crate::Ipc> {
-    #[cfg_attr(unix, doc = "Connects to the Unix socket at the provided path.")]
-    #[cfg_attr(windows, doc = "Connects to the named pipe at the provided path.\n")]
-    #[cfg_attr(
-        windows,
-        doc = r"Note: the path must be the fully qualified, like: `\\.\pipe\<name>`."
-    )]
-    pub async fn connect_ipc(path: impl AsRef<std::path::Path>) -> Result<Self, ProviderError> {
-        let ipc = crate::Ipc::connect(path).await?;
-        Ok(Self::new(ipc))
-    }
-}
+// #[cfg(all(feature = "ipc", any(unix, windows)))]
+// impl Provider<crate::Ipc> {
+//     #[cfg_attr(unix, doc = "Connects to the Unix socket at the provided path.")]
+//     #[cfg_attr(windows, doc = "Connects to the named pipe at the provided path.\n")]
+//     #[cfg_attr(
+//         windows,
+//         doc = r"Note: the path must be the fully qualified, like: `\\.\pipe\<name>`."
+//     )]
+//     pub async fn connect_ipc(path: impl AsRef<std::path::Path>) -> Result<Self, ProviderError> {
+//         let ipc = crate::Ipc::connect(path).await?;
+//         Ok(Self::new(ipc))
+//     }
+// }
 
-impl Provider<HttpProvider> {
-    /// The Url to which requests are made
-    pub fn url(&self) -> &Url {
-        self.inner.url()
-    }
+// impl Provider<HttpProvider> {
+//     /// The Url to which requests are made
+//     pub fn url(&self) -> &Url {
+//         self.inner.url()
+//     }
 
-    /// Mutable access to the Url to which requests are made
-    pub fn url_mut(&mut self) -> &mut Url {
-        self.inner.url_mut()
-    }
-}
+//     /// Mutable access to the Url to which requests are made
+//     pub fn url_mut(&mut self) -> &mut Url {
+//         self.inner.url_mut()
+//     }
+// }
 
-impl<Read, Write> Provider<RwClient<Read, Write>>
-where
-    Read: JsonRpcClient + 'static,
-    <Read as JsonRpcClient>::Error: Sync + Send + 'static,
-    Write: JsonRpcClient + 'static,
-    <Write as JsonRpcClient>::Error: Sync + Send + 'static,
-{
-    /// Creates a new [Provider] with a [RwClient]
-    pub fn rw(r: Read, w: Write) -> Self {
-        Self::new(RwClient::new(r, w))
-    }
-}
+// impl<Read, Write> Provider<RwClient<Read, Write>>
+// where
+//     Read: JsonRpcClient + 'static,
+//     <Read as JsonRpcClient>::Error: Sync + Send + 'static,
+//     Write: JsonRpcClient + 'static,
+//     <Write as JsonRpcClient>::Error: Sync + Send + 'static,
+// {
+//     /// Creates a new [Provider] with a [RwClient]
+//     pub fn rw(r: Read, w: Write) -> Self {
+//         Self::new(RwClient::new(r, w))
+//     }
+// }
 
-impl<T: JsonRpcClientWrapper> Provider<QuorumProvider<T>> {
-    /// Provider that uses a quorum
-    pub fn quorum(inner: QuorumProvider<T>) -> Self {
-        Self::new(inner)
-    }
-}
+// impl<T: JsonRpcClientWrapper> Provider<QuorumProvider<T>> {
+//     /// Provider that uses a quorum
+//     pub fn quorum(inner: QuorumProvider<T>) -> Self {
+//         Self::new(inner)
+//     }
+// }
 
 impl Provider<MockProvider> {
     /// Returns a `Provider` instantiated with an internal "mock" transport.
@@ -1356,50 +1359,50 @@ fn decode_bytes<T: Detokenize>(param: ParamType, bytes: Bytes) -> T {
     T::from_tokens(tokens).expect("could not parse tokens as address")
 }
 
-impl TryFrom<&str> for Provider<HttpProvider> {
-    type Error = ParseError;
+// impl TryFrom<&str> for Provider<HttpProvider> {
+//     type Error = ParseError;
 
-    fn try_from(src: &str) -> Result<Self, Self::Error> {
-        Ok(Provider::new(HttpProvider::new(Url::parse(src)?)))
-    }
-}
+//     fn try_from(src: &str) -> Result<Self, Self::Error> {
+//         Ok(Provider::new(HttpProvider::new(Url::parse(src)?)))
+//     }
+// }
 
-impl TryFrom<String> for Provider<HttpProvider> {
-    type Error = ParseError;
+// impl TryFrom<String> for Provider<HttpProvider> {
+//     type Error = ParseError;
 
-    fn try_from(src: String) -> Result<Self, Self::Error> {
-        Provider::try_from(src.as_str())
-    }
-}
+//     fn try_from(src: String) -> Result<Self, Self::Error> {
+//         Provider::try_from(src.as_str())
+//     }
+// }
 
-impl<'a> TryFrom<&'a String> for Provider<HttpProvider> {
-    type Error = ParseError;
+// impl<'a> TryFrom<&'a String> for Provider<HttpProvider> {
+//     type Error = ParseError;
 
-    fn try_from(src: &'a String) -> Result<Self, Self::Error> {
-        Provider::try_from(src.as_str())
-    }
-}
+//     fn try_from(src: &'a String) -> Result<Self, Self::Error> {
+//         Provider::try_from(src.as_str())
+//     }
+// }
 
-#[cfg(not(target_arch = "wasm32"))]
-impl Provider<RetryClient<HttpProvider>> {
-    /// Create a new [`RetryClient`] by connecting to the provided URL. Errors
-    /// if `src` is not a valid URL
-    pub fn new_client(src: &str, max_retry: u32, initial_backoff: u64) -> Result<Self, ParseError> {
-        Ok(Provider::new(RetryClient::new(
-            HttpProvider::new(Url::parse(src)?),
-            Box::new(HttpRateLimitRetryPolicy),
-            max_retry,
-            initial_backoff,
-        )))
-    }
-}
+// #[cfg(not(target_arch = "wasm32"))]
+// impl Provider<RetryClient<HttpProvider>> {
+//     /// Create a new [`RetryClient`] by connecting to the provided URL. Errors
+//     /// if `src` is not a valid URL
+//     pub fn new_client(src: &str, max_retry: u32, initial_backoff: u64) -> Result<Self, ParseError> {
+//         Ok(Provider::new(RetryClient::new(
+//             HttpProvider::new(Url::parse(src)?),
+//             Box::new(HttpRateLimitRetryPolicy),
+//             max_retry,
+//             initial_backoff,
+//         )))
+//     }
+// }
 
-mod sealed {
-    use crate::{Http, Provider};
-    /// private trait to ensure extension trait is not implement outside of this crate
-    pub trait Sealed {}
-    impl Sealed for Provider<Http> {}
-}
+// mod sealed {
+//     use crate::{Http, Provider};
+//     /// private trait to ensure extension trait is not implement outside of this crate
+//     pub trait Sealed {}
+//     impl Sealed for Provider<Http> {}
+// }
 
 /// Extension trait for `Provider`
 ///
@@ -1426,73 +1429,73 @@ mod sealed {
 /// use ethers_providers::{Http, Provider, ProviderExt};
 /// let http_provider = Provider::<Http>::try_from("https://eth.llamarpc.com").unwrap().set_chain(Chain::Mainnet);
 /// ```
-#[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait)]
-pub trait ProviderExt: sealed::Sealed {
-    /// The error type that can occur when creating a provider
-    type Error: Debug;
+// #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
+// #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
+// pub trait ProviderExt: sealed::Sealed {
+//     /// The error type that can occur when creating a provider
+//     type Error: Debug;
 
-    /// Creates a new instance connected to the given `url`, exit on error
-    async fn connect(url: &str) -> Self
-    where
-        Self: Sized,
-    {
-        Self::try_connect(url).await.unwrap()
-    }
+//     /// Creates a new instance connected to the given `url`, exit on error
+//     async fn connect(url: &str) -> Self
+//     where
+//         Self: Sized,
+//     {
+//         Self::try_connect(url).await.unwrap()
+//     }
 
-    /// Try to create a new `Provider`
-    async fn try_connect(url: &str) -> Result<Self, Self::Error>
-    where
-        Self: Sized;
+//     /// Try to create a new `Provider`
+//     async fn try_connect(url: &str) -> Result<Self, Self::Error>
+//     where
+//         Self: Sized;
 
-    /// Customize `Provider` settings for chain.
-    ///
-    /// E.g. [`Chain::average_blocktime_hint()`] returns the average block time which can be used to
-    /// tune the polling interval.
-    ///
-    /// Returns the customized `Provider`
-    fn for_chain(mut self, chain: impl Into<Chain>) -> Self
-    where
-        Self: Sized,
-    {
-        self.set_chain(chain);
-        self
-    }
+//     /// Customize `Provider` settings for chain.
+//     ///
+//     /// E.g. [`Chain::average_blocktime_hint()`] returns the average block time which can be used to
+//     /// tune the polling interval.
+//     ///
+//     /// Returns the customized `Provider`
+//     fn for_chain(mut self, chain: impl Into<Chain>) -> Self
+//     where
+//         Self: Sized,
+//     {
+//         self.set_chain(chain);
+//         self
+//     }
 
-    /// Customized `Provider` settings for chain
-    fn set_chain(&mut self, chain: impl Into<Chain>) -> &mut Self;
-}
+//     /// Customized `Provider` settings for chain
+//     fn set_chain(&mut self, chain: impl Into<Chain>) -> &mut Self;
+// }
 
-#[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait)]
-impl ProviderExt for Provider<HttpProvider> {
-    type Error = ParseError;
+// #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
+// #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
+// impl ProviderExt for Provider<HttpProvider> {
+//     type Error = ParseError;
 
-    async fn try_connect(url: &str) -> Result<Self, Self::Error>
-    where
-        Self: Sized,
-    {
-        let mut provider = Provider::try_from(url)?;
-        if is_local_endpoint(url) {
-            provider.set_interval(DEFAULT_LOCAL_POLL_INTERVAL);
-        } else if let Some(chain) =
-            provider.get_chainid().await.ok().and_then(|id| Chain::try_from(id).ok())
-        {
-            provider.set_chain(chain);
-        }
+//     async fn try_connect(url: &str) -> Result<Self, Self::Error>
+//     where
+//         Self: Sized,
+//     {
+//         let mut provider = Provider::try_from(url)?;
+//         if is_local_endpoint(url) {
+//             provider.set_interval(DEFAULT_LOCAL_POLL_INTERVAL);
+//         } else if let Some(chain) =
+//             provider.get_chainid().await.ok().and_then(|id| Chain::try_from(id).ok())
+//         {
+//             provider.set_chain(chain);
+//         }
 
-        Ok(provider)
-    }
+//         Ok(provider)
+//     }
 
-    fn set_chain(&mut self, chain: impl Into<Chain>) -> &mut Self {
-        let chain = chain.into();
-        if let Some(blocktime) = chain.average_blocktime_hint() {
-            // use half of the block time
-            self.set_interval(blocktime / 2);
-        }
-        self
-    }
-}
+//     fn set_chain(&mut self, chain: impl Into<Chain>) -> &mut Self {
+//         let chain = chain.into();
+//         if let Some(blocktime) = chain.average_blocktime_hint() {
+//             // use half of the block time
+//             self.set_interval(blocktime / 2);
+//         }
+//         self
+//     }
+// }
 
 /// Returns true if the endpoint is local
 ///
@@ -1530,7 +1533,7 @@ pub fn is_local_endpoint(endpoint: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Http;
+    // use crate::Http;
     use ethers_core::{
         types::{
             transaction::eip2930::AccessList, Eip1559TransactionRequest,
@@ -1539,7 +1542,7 @@ mod tests {
         },
         utils::{Anvil, Genesis, Geth, GethInstance},
     };
-    use futures_util::StreamExt;
+    // use futures_util::StreamExt;
     use std::path::PathBuf;
 
     #[test]

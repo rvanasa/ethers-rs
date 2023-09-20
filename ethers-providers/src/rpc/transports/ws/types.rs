@@ -244,56 +244,56 @@ pub enum Instruction {
     Unsubscribe { id: U256 },
 }
 
-#[cfg(target_arch = "wasm32")]
-mod aliases {
-    pub use wasm_bindgen::prelude::*;
-    pub use wasm_bindgen_futures::spawn_local;
-    pub use ws_stream_wasm::*;
+// #[cfg(target_arch = "wasm32")]
+// mod aliases {
+//     pub use wasm_bindgen::prelude::*;
+//     pub use wasm_bindgen_futures::spawn_local;
+//     pub use ws_stream_wasm::*;
 
-    pub type Message = WsMessage;
-    pub type WsError = ws_stream_wasm::WsErr;
-    pub type WsStreamItem = Message;
+//     pub type Message = WsMessage;
+//     pub type WsError = ws_stream_wasm::WsErr;
+//     pub type WsStreamItem = Message;
 
-    pub type InternalStream = futures_util::stream::Fuse<WsStream>;
-}
+//     pub type InternalStream = futures_util::stream::Fuse<WsStream>;
+// }
 
-#[cfg(not(target_arch = "wasm32"))]
-mod aliases {
-    pub use tokio_tungstenite::{
-        connect_async, connect_async_with_config,
-        tungstenite::{self, protocol::CloseFrame},
-    };
-    use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
-    pub type WebSocketConfig = tungstenite::protocol::WebSocketConfig;
-    pub type Message = tungstenite::protocol::Message;
-    pub type WsError = tungstenite::Error;
-    pub type WsStreamItem = Result<Message, WsError>;
+// #[cfg(not(target_arch = "wasm32"))]
+// mod aliases {
+//     pub use tokio_tungstenite::{
+//         connect_async, connect_async_with_config,
+//         tungstenite::{self, protocol::CloseFrame},
+//     };
+//     use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
+//     pub type WebSocketConfig = tungstenite::protocol::WebSocketConfig;
+//     pub type Message = tungstenite::protocol::Message;
+//     pub type WsError = tungstenite::Error;
+//     pub type WsStreamItem = Result<Message, WsError>;
 
-    pub use http::Request as HttpRequest;
-    pub use tracing::{debug, error, trace, warn};
-    pub use tungstenite::client::IntoClientRequest;
+//     pub use http::Request as HttpRequest;
+//     pub use tracing::{debug, error, trace, warn};
+//     pub use tungstenite::client::IntoClientRequest;
 
-    pub use tokio::time::sleep;
+//     pub use tokio::time::sleep;
 
-    pub type InternalStream =
-        futures_util::stream::Fuse<WebSocketStream<MaybeTlsStream<tokio::net::TcpStream>>>;
+//     pub type InternalStream =
+//         futures_util::stream::Fuse<WebSocketStream<MaybeTlsStream<tokio::net::TcpStream>>>;
 
-    impl IntoClientRequest for super::ConnectionDetails {
-        fn into_client_request(
-            self,
-        ) -> tungstenite::Result<tungstenite::handshake::client::Request> {
-            let mut request: HttpRequest<()> = self.url.into_client_request()?;
-            if let Some(auth) = self.auth {
-                let mut auth_value = http::HeaderValue::from_str(&auth.to_string())?;
-                auth_value.set_sensitive(true);
+//     impl IntoClientRequest for super::ConnectionDetails {
+//         fn into_client_request(
+//             self,
+//         ) -> tungstenite::Result<tungstenite::handshake::client::Request> {
+//             let mut request: HttpRequest<()> = self.url.into_client_request()?;
+//             if let Some(auth) = self.auth {
+//                 let mut auth_value = http::HeaderValue::from_str(&auth.to_string())?;
+//                 auth_value.set_sensitive(true);
 
-                request.headers_mut().insert(http::header::AUTHORIZATION, auth_value);
-            }
+//                 request.headers_mut().insert(http::header::AUTHORIZATION, auth_value);
+//             }
 
-            request.into_client_request()
-        }
-    }
-}
+//             request.into_client_request()
+//         }
+//     }
+// }
 
 pub use aliases::*;
 
