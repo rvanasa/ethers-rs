@@ -158,6 +158,7 @@ pub enum ProviderError {
 
     /// Error in underlying lib `reqwest`
     #[error(transparent)]
+    #[cfg(reqwest)]
     HTTPError(#[from] reqwest::Error),
 
     /// Custom error from unknown source

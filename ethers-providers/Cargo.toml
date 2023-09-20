@@ -29,7 +29,7 @@ serde.workspace = true
 serde_json = { workspace = true, features = ["raw_value"] }
 
 # http = "0.2"
-reqwest = { workspace = true, features = ["json"] }
+reqwest = { workspace = true, features = ["json"], optional = true }
 url.workspace = true
 base64 = "0.21"
 jsonwebtoken = "8"
