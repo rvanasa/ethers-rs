@@ -38,61 +38,61 @@ macro_rules! if_not_wasm {
     )*}
 }
 
-if_wasm! {
-    use wasm_bindgen::prelude::*;
-    use wasm_bindgen_futures::spawn_local;
-    use ws_stream_wasm::*;
+// if_wasm! {
+//     use wasm_bindgen::prelude::*;
+//     use wasm_bindgen_futures::spawn_local;
+//     use ws_stream_wasm::*;
 
-    type Message = WsMessage;
-    type WsError = ws_stream_wasm::WsErr;
-    type WsStreamItem = Message;
+//     type Message = WsMessage;
+//     type WsError = ws_stream_wasm::WsErr;
+//     type WsStreamItem = Message;
 
-    macro_rules! error {
-        ( $( $t:tt )* ) => {
-            web_sys::console::error_1(&format!( $( $t )* ).into());
-        }
-    }
-    macro_rules! warn {
-        ( $( $t:tt )* ) => {
-            web_sys::console::warn_1(&format!( $( $t )* ).into());
-        }
-    }
-    macro_rules! debug {
-        ( $( $t:tt )* ) => {
-            web_sys::console::log_1(&format!( $( $t )* ).into());
-        }
-    }
-}
+//     macro_rules! error {
+//         ( $( $t:tt )* ) => {
+//             web_sys::console::error_1(&format!( $( $t )* ).into());
+//         }
+//     }
+//     macro_rules! warn {
+//         ( $( $t:tt )* ) => {
+//             web_sys::console::warn_1(&format!( $( $t )* ).into());
+//         }
+//     }
+//     macro_rules! debug {
+//         ( $( $t:tt )* ) => {
+//             web_sys::console::log_1(&format!( $( $t )* ).into());
+//         }
+//     }
+// }
 
-if_not_wasm! {
-    use tokio_tungstenite::{
-        connect_async,
-        tungstenite::{
-            self,
-            protocol::CloseFrame,
-        },
-    };
-    type Message = tungstenite::protocol::Message;
-    type WsError = tungstenite::Error;
-    type WsStreamItem = Result<Message, WsError>;
-    use super::Authorization;
-    use tracing::{debug, error, warn};
-    use http::Request as HttpRequest;
-    use tungstenite::client::IntoClientRequest;
-}
+// if_not_wasm! {
+//     use tokio_tungstenite::{
+//         connect_async,
+//         tungstenite::{
+//             self,
+//             protocol::CloseFrame,
+//         },
+//     };
+//     type Message = tungstenite::protocol::Message;
+//     type WsError = tungstenite::Error;
+//     type WsStreamItem = Result<Message, WsError>;
+//     use super::Authorization;
+//     use tracing::{debug, error, warn};
+//     use http::Request as HttpRequest;
+//     use tungstenite::client::IntoClientRequest;
+// }
 
-type Pending = oneshot::Sender<Result<Box<RawValue>, JsonRpcError>>;
-type Subscription = mpsc::UnboundedSender<Box<RawValue>>;
+// type Pending = oneshot::Sender<Result<Box<RawValue>, JsonRpcError>>;
+// type Subscription = mpsc::UnboundedSender<Box<RawValue>>;
 
-/// Instructions for the `WsServer`.
-enum Instruction {
-    /// JSON-RPC request
-    Request { id: u64, request: String, sender: Pending },
-    /// Create a new subscription
-    Subscribe { id: U256, sink: Subscription },
-    /// Cancel an existing subscription
-    Unsubscribe { id: U256 },
-}
+// /// Instructions for the `WsServer`.
+// enum Instruction {
+//     /// JSON-RPC request
+//     Request { id: u64, request: String, sender: Pending },
+//     /// Create a new subscription
+//     Subscribe { id: U256, sink: Subscription },
+//     /// Cancel an existing subscription
+//     Unsubscribe { id: U256 },
+// }
 
 /// A JSON-RPC Client over Websockets.
 ///
