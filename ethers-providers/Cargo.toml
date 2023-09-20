@@ -57,13 +57,13 @@ enr = { version = "0.9.0", default-features = false, features = ["k256", "serde"
 tracing = { workspace = true, features = ["attributes"] }
 tracing-futures = { workspace = true, features = ["std-future"] }
 
-# [target.'cfg(target_family = "windows")'.dependencies]
-# winapi = { version = "0.3", optional = true }
+[target.'cfg(target_family = "windows")'.dependencies]
+winapi = { version = "0.3", optional = true }
 
-# [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # # tokio
-# tokio = { workspace = true, features = ["time"] }
-# tokio-tungstenite = { workspace = true, features = ["connect"], optional = true }
+tokio = { workspace = true, features = ["time"] }
+tokio-tungstenite = { workspace = true, features = ["connect"], optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # ws_stream_wasm = "0.7"
