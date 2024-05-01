@@ -34,7 +34,7 @@ elliptic-curve.workspace = true
 generic-array.workspace = true
 k256 = { workspace = true, features = ["ecdsa", "std"] }
 tiny-keccak.workspace = true
-rand.workspace = true
+# rand.workspace = true
 
 # misc
 chrono.workspace = true
@@ -51,9 +51,6 @@ num_enum = "0.7"
 # macros feature enabled dependencies
 cargo_metadata = { version = "0.18.0", optional = true }
 syn = { workspace = true, optional = true }
-
-# EVM RPC canister patch
-getrandom = { version = "0.2", features = ["custom"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tempfile.workspace = true

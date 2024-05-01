@@ -14,7 +14,7 @@ pub mod utils;
 pub mod macros;
 
 // re-export rand to avoid potential confusion when there's rand version mismatches
-pub use rand;
+// pub use rand;
 
 // re-export k256
 pub use k256;

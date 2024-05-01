@@ -10,9 +10,9 @@ use elliptic_curve::rand_core;
 use eth_keystore::KeystoreError;
 use ethers_core::{
     k256::ecdsa::{self, SigningKey},
-    rand::{CryptoRng, Rng},
     utils::secret_key_to_address,
 };
+use rand::{CryptoRng, Rng};
 #[cfg(not(target_arch = "wasm32"))]
 use std::path::Path;
 use std::str::FromStr;
